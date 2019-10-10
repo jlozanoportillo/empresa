@@ -1,6 +1,8 @@
 package controller.model.loggin;
 
-public class EventLogging {
+import java.io.Serializable;
+
+public class EventLogging implements Serializable{
 
   private String dateRegister;
   private String eventSource;
