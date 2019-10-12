@@ -92,15 +92,15 @@ public class HomePage extends JFrame {
 		
 		 //termina la carga de tabla
 		JButton btnAgregarEmpleado = new JButton("Agregar Empleado");
-		btnAgregarEmpleado.setBounds(510, 52, 121, 34);
+		btnAgregarEmpleado.setBounds(20, 386, 121, 34);
 		empleadoPanel.add(btnAgregarEmpleado);
 		
 		JButton btnEliminarempleado = new JButton("EliminarEmpleado");
-		btnEliminarempleado.setBounds(510, 97, 121, 34);
+		btnEliminarempleado.setBounds(174, 386, 121, 34);
 		empleadoPanel.add(btnEliminarempleado);
 		
 		JButton btnEditarEmpleado = new JButton("Editar Empleado");
-		btnEditarEmpleado.setBounds(510, 148, 121, 34);
+		btnEditarEmpleado.setBounds(331, 386, 121, 34);
 		empleadoPanel.add(btnEditarEmpleado);
 		
 		// AGREGAMOS LOS PANELES AL CARDLAYOUT
@@ -108,6 +108,18 @@ public class HomePage extends JFrame {
 		conceptosPanel.add(productoPanel, "productoPanel");
 		conceptosPanel.add(clientePanel, "clientePanel");
 		cargaTablaEmpleado(empleadoPanel);
+		
+		JLabel lblNombreEmpleado = new JLabel("Nombre:");
+		lblNombreEmpleado.setBounds(490, 96, 46, 14);
+		empleadoPanel.add(lblNombreEmpleado);
+		
+		JLabel lblCodigoEmpleado = new JLabel("Codigo");
+		lblCodigoEmpleado.setBounds(490, 135, 46, 14);
+		empleadoPanel.add(lblCodigoEmpleado);
+		
+		JLabel lblDireccionEmpleado = new JLabel("Direccion");
+		lblDireccionEmpleado.setBounds(490, 170, 46, 14);
+		empleadoPanel.add(lblDireccionEmpleado);
 		
 		// CREAMOS LOS BOTONES DEL MENU Y LES DAMOS ACTIONS
 		JButton empleadoButton = new JButton("Empleado");
