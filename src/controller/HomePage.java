@@ -32,6 +32,7 @@ public class HomePage extends JFrame {
 
 	//curiosidades
 	private Integer empleadoSelectIndex = -1;
+	List<Empleado> empleados = null;
 	
 	public HomePage() {
 		super("Pagina de Inicio");
@@ -99,6 +100,21 @@ public class HomePage extends JFrame {
 		
 		 //termina la carga de tabla
 		JButton btnAgregarEmpleado = new JButton("Agregar Empleado");
+		btnAgregarEmpleado.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(nombreEmpleadoText.getText().trim().isEmpty() || codigoEmpleadoText.getText().trim().isEmpty() || direccionEmpleadoText.getText().trim().isEmpty()) {
+					//JOptionPane
+				}
+				else {
+					String nombre = nombreEmpleadoText.getText().trim();
+					String codigo = codigoEmpleadoText.getText().trim();
+					String direccion = direccionEmpleadoText.getText().trim();
+					empleados.add(new Empleado(nombre, codigo, direccion));
+					putObjetToModel(empleadoTableModel,new Object[] {nombre, codigo, direccion});
+					limpiarFormularioEmpleado();
+				}
+			}
+		});
 		btnAgregarEmpleado.setBounds(20, 386, 128, 34);
 		empleadoPanel.add(btnAgregarEmpleado);
 		
@@ -117,39 +133,36 @@ public class HomePage extends JFrame {
 		cargaTablaEmpleado(empleadoPanel);
 		
 		JLabel lblNombreEmpleado = new JLabel("Nombre:");
-		lblNombreEmpleado.setBounds(490, 96, 46, 14);
+		lblNombreEmpleado.setBounds(483, 96, 53, 14);
 		empleadoPanel.add(lblNombreEmpleado);
 		
 		JLabel lblCodigoEmpleado = new JLabel("Codigo");
-		lblCodigoEmpleado.setBounds(490, 135, 46, 14);
+		lblCodigoEmpleado.setBounds(483, 135, 53, 14);
 		empleadoPanel.add(lblCodigoEmpleado);
 		
 		JLabel lblDireccionEmpleado = new JLabel("Direccion");
-		lblDireccionEmpleado.setBounds(490, 174, 46, 14);
+		lblDireccionEmpleado.setBounds(483, 174, 53, 14);
 		empleadoPanel.add(lblDireccionEmpleado);
 		
 		nombreEmpleadoText = new JTextField();
-		nombreEmpleadoText.setBounds(546, 84, 105, 26);
+		nombreEmpleadoText.setBounds(556, 84, 105, 26);
 		empleadoPanel.add(nombreEmpleadoText);
 		nombreEmpleadoText.setColumns(10);
 		
 		codigoEmpleadoText = new JTextField();
-		codigoEmpleadoText.setBounds(546, 126, 105, 26);
+		codigoEmpleadoText.setBounds(556, 129, 105, 26);
 		empleadoPanel.add(codigoEmpleadoText);
 		codigoEmpleadoText.setColumns(10);
 		
 		direccionEmpleadoText = new JTextField();
-		direccionEmpleadoText.setBounds(546, 167, 105, 26);
+		direccionEmpleadoText.setBounds(556, 168, 105, 26);
 		empleadoPanel.add(direccionEmpleadoText);
 		direccionEmpleadoText.setColumns(10);
 		
 		JButton btnLimpiar = new JButton("Limpiar");
 		btnLimpiar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				nombreEmpleadoText.setText("");
-				codigoEmpleadoText.setText("");
-				direccionEmpleadoText.setText("");
-				empleadoSelectIndex = -1;
+				limpiarFormularioEmpleado();
 			}
 		});
 		btnLimpiar.setBounds(483, 386, 105, 34);
@@ -223,8 +236,7 @@ public class HomePage extends JFrame {
 		panelEmpleado.add(empleadoTable);		
 	}
 	public Object[][] cargarDataEmpleados() {
-		System.out.println("hola llege punto 1");
-		List<Empleado> empleados = new ArrayList<>();
+		empleados = new ArrayList<>();
 		empleados.add(new Empleado("daniel-1", "cod1", "direccion1"));
 		empleados.add(new Empleado("daniel-2", "cod2", "direccion2"));
 		empleados.add(new Empleado("daniel-3", "cod3", "direccion3"));
@@ -245,10 +257,18 @@ public class HomePage extends JFrame {
 			data[i][1]=empleados.get(i).getCodigo();
 			data[i][2]=empleados.get(i).getDireccion();
 			
-		}
-	System.out.println("hola llege punto 2");
+		} 
 		return data;
 	}
 	
+	private void putObjetToModel(DefaultTableModel tableModel, Object[] object) {
+		tableModel.addRow(object);
+	}
 	
+	private void limpiarFormularioEmpleado() {
+		nombreEmpleadoText.setText("");
+		codigoEmpleadoText.setText("");
+		direccionEmpleadoText.setText("");
+		empleadoSelectIndex = -1;
+	}
 }
