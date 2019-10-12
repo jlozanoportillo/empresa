@@ -5,22 +5,31 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import controller.model.entidad.Empleado;
+import controller.model.loggin.EventLogging;
+import util.FileRegistry;
+
 import javax.swing.JTextField; 
 
 public class HomePage extends JFrame {
-
+	
+	private static final String EMPLEADO_FILE ="registroEmpleado.txt";
+	private static final String CLIENTE_FILE ="registroCliente.txt";
+	private static final String PRODUCTO_FILE ="registroProducto.txt";
+	
 	private static final long serialVersionUID = 1L;
 	private JTable empleadoTable;
 	private JTable productoTable;
@@ -103,7 +112,7 @@ public class HomePage extends JFrame {
 		btnAgregarEmpleado.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(nombreEmpleadoText.getText().trim().isEmpty() || codigoEmpleadoText.getText().trim().isEmpty() || direccionEmpleadoText.getText().trim().isEmpty()) {
-					//JOptionPane
+					JOptionPane.showMessageDialog(btnAgregarEmpleado, "Los datos introducidos no cumplen el formato");
 				}
 				else {
 					String nombre = nombreEmpleadoText.getText().trim();
@@ -112,6 +121,17 @@ public class HomePage extends JFrame {
 					empleados.add(new Empleado(nombre, codigo, direccion));
 					putObjetToModel(empleadoTableModel,new Object[] {nombre, codigo, direccion});
 					limpiarFormularioEmpleado();
+					
+					try {
+						EventLogging event = new EventLogging();
+						event.setDateRegister(FileRegistry.getNowDateString());
+						event.setEventSource("empleadoSave");
+						event.setPayload(empleados);
+						FileRegistry.saveLog(EMPLEADO_FILE, false, event);
+					} catch (IOException e1) {
+						System.out.println("Problema guardando empleado: " + e1.getMessage());
+						JOptionPane.showMessageDialog(btnAgregarEmpleado, "Hubo un problema guardando el empleado");
+					}
 				}
 			}
 		});
@@ -133,15 +153,15 @@ public class HomePage extends JFrame {
 		cargaTablaEmpleado(empleadoPanel);
 		
 		JLabel lblNombreEmpleado = new JLabel("Nombre:");
-		lblNombreEmpleado.setBounds(483, 96, 53, 14);
+		lblNombreEmpleado.setBounds(470, 96, 53, 14);
 		empleadoPanel.add(lblNombreEmpleado);
 		
 		JLabel lblCodigoEmpleado = new JLabel("Codigo");
-		lblCodigoEmpleado.setBounds(483, 135, 53, 14);
+		lblCodigoEmpleado.setBounds(470, 135, 53, 14);
 		empleadoPanel.add(lblCodigoEmpleado);
 		
 		JLabel lblDireccionEmpleado = new JLabel("Direccion");
-		lblDireccionEmpleado.setBounds(483, 174, 53, 14);
+		lblDireccionEmpleado.setBounds(470, 174, 80, 14);
 		empleadoPanel.add(lblDireccionEmpleado);
 		
 		nombreEmpleadoText = new JTextField();
@@ -236,6 +256,8 @@ public class HomePage extends JFrame {
 		panelEmpleado.add(empleadoTable);		
 	}
 	public Object[][] cargarDataEmpleados() {
+		EventLogging ss = (EventLogging)FileRegistry.readFile(EMPLEADO_FILE);
+//		JOptionPane.showMessageDialog(null, "se recupero el evento" + ((ArrayList<Empleado>)ss.getPayload()).size());
 		empleados = new ArrayList<>();
 		empleados.add(new Empleado("daniel-1", "cod1", "direccion1"));
 		empleados.add(new Empleado("daniel-2", "cod2", "direccion2"));

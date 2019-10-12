@@ -1,6 +1,8 @@
 package controller.model.entidad;
 
-public class Empleado {
+import java.io.Serializable;
+
+public class Empleado implements Serializable{
 	
 	private String nombre;
 	private String codigo;
