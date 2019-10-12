@@ -16,7 +16,8 @@ import javax.swing.JTable;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
-import controller.model.entidad.Empleado; 
+import controller.model.entidad.Empleado;
+import javax.swing.JTextField; 
 
 public class HomePage extends JFrame {
 
@@ -25,7 +26,13 @@ public class HomePage extends JFrame {
 	private JTable productoTable;
 	private JTable clienteTable; 
 	DefaultTableModel empleadoTableModel;
+	private JTextField nombreEmpleadoText;
+	private JTextField codigoEmpleadoText;
+	private JTextField direccionEmpleadoText;
 
+	//curiosidades
+	private Integer empleadoSelectIndex = -1;
+	
 	public HomePage() {
 		super("Pagina de Inicio");
 		setSize(900, 500);
@@ -92,7 +99,7 @@ public class HomePage extends JFrame {
 		
 		 //termina la carga de tabla
 		JButton btnAgregarEmpleado = new JButton("Agregar Empleado");
-		btnAgregarEmpleado.setBounds(20, 386, 121, 34);
+		btnAgregarEmpleado.setBounds(20, 386, 128, 34);
 		empleadoPanel.add(btnAgregarEmpleado);
 		
 		JButton btnEliminarempleado = new JButton("EliminarEmpleado");
@@ -100,7 +107,7 @@ public class HomePage extends JFrame {
 		empleadoPanel.add(btnEliminarempleado);
 		
 		JButton btnEditarEmpleado = new JButton("Editar Empleado");
-		btnEditarEmpleado.setBounds(331, 386, 121, 34);
+		btnEditarEmpleado.setBounds(329, 386, 121, 34);
 		empleadoPanel.add(btnEditarEmpleado);
 		
 		// AGREGAMOS LOS PANELES AL CARDLAYOUT
@@ -118,8 +125,35 @@ public class HomePage extends JFrame {
 		empleadoPanel.add(lblCodigoEmpleado);
 		
 		JLabel lblDireccionEmpleado = new JLabel("Direccion");
-		lblDireccionEmpleado.setBounds(490, 170, 46, 14);
+		lblDireccionEmpleado.setBounds(490, 174, 46, 14);
 		empleadoPanel.add(lblDireccionEmpleado);
+		
+		nombreEmpleadoText = new JTextField();
+		nombreEmpleadoText.setBounds(546, 84, 105, 26);
+		empleadoPanel.add(nombreEmpleadoText);
+		nombreEmpleadoText.setColumns(10);
+		
+		codigoEmpleadoText = new JTextField();
+		codigoEmpleadoText.setBounds(546, 126, 105, 26);
+		empleadoPanel.add(codigoEmpleadoText);
+		codigoEmpleadoText.setColumns(10);
+		
+		direccionEmpleadoText = new JTextField();
+		direccionEmpleadoText.setBounds(546, 167, 105, 26);
+		empleadoPanel.add(direccionEmpleadoText);
+		direccionEmpleadoText.setColumns(10);
+		
+		JButton btnLimpiar = new JButton("Limpiar");
+		btnLimpiar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				nombreEmpleadoText.setText("");
+				codigoEmpleadoText.setText("");
+				direccionEmpleadoText.setText("");
+				empleadoSelectIndex = -1;
+			}
+		});
+		btnLimpiar.setBounds(483, 386, 105, 34);
+		empleadoPanel.add(btnLimpiar);
 		
 		// CREAMOS LOS BOTONES DEL MENU Y LES DAMOS ACTIONS
 		JButton empleadoButton = new JButton("Empleado");
