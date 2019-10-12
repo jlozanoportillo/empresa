@@ -255,23 +255,32 @@ public class HomePage extends JFrame {
 		cargarDataEmpleados();
 		panelEmpleado.add(empleadoTable);		
 	}
+	@SuppressWarnings("unchecked")
 	public Object[][] cargarDataEmpleados() {
-		EventLogging ss = (EventLogging)FileRegistry.readFile(EMPLEADO_FILE);
+		EventLogging event = (EventLogging)FileRegistry.readFile(EMPLEADO_FILE);
 //		JOptionPane.showMessageDialog(null, "se recupero el evento" + ((ArrayList<Empleado>)ss.getPayload()).size());
+		
 		empleados = new ArrayList<>();
-		empleados.add(new Empleado("daniel-1", "cod1", "direccion1"));
-		empleados.add(new Empleado("daniel-2", "cod2", "direccion2"));
-		empleados.add(new Empleado("daniel-3", "cod3", "direccion3"));
-		empleados.add(new Empleado("daniel-4", "cod4", "direccion4"));
-		empleados.add(new Empleado("daniel-5", "cod5", "direccion5"));
-		empleados.add(new Empleado("daniel-6", "cod6", "direccion6"));
-		empleados.add(new Empleado("daniel-7", "cod7", "direccion7"));
-		empleados.add(new Empleado("daniel-8", "cod8", "direccion8"));
+		if(event == null) {
+			return new Object[][] {
+			};
+		}
+		empleados =  (List<Empleado>) event.getPayload();
 		
 		if(empleados == null || empleados.isEmpty()) {
 			return new Object[][] {
 			};
 		}
+//		empleados.add(new Empleado("daniel-1", "cod1", "direccion1"));
+//		empleados.add(new Empleado("daniel-2", "cod2", "direccion2"));
+//		empleados.add(new Empleado("daniel-3", "cod3", "direccion3"));
+//		empleados.add(new Empleado("daniel-4", "cod4", "direccion4"));
+//		empleados.add(new Empleado("daniel-5", "cod5", "direccion5"));
+//		empleados.add(new Empleado("daniel-6", "cod6", "direccion6"));
+//		empleados.add(new Empleado("daniel-7", "cod7", "direccion7"));
+//		empleados.add(new Empleado("daniel-8", "cod8", "direccion8"));
+		
+		
 		Object[][] data = new Object [empleados.size()][3];
 		
 		for (int i = 0; i < empleados.size(); i++) {

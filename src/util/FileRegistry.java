@@ -35,6 +35,7 @@ public class FileRegistry {
 
 		} catch (Exception e) {
 			System.out.println("Ocurrio un error al leer el archivo");
+
 		}
 		return null;
 	}
