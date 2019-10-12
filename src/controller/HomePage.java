@@ -22,27 +22,27 @@ import controller.model.entidad.Empleado;
 import controller.model.loggin.EventLogging;
 import util.FileRegistry;
 
-import javax.swing.JTextField; 
+import javax.swing.JTextField;
 
 public class HomePage extends JFrame {
-	
-	private static final String EMPLEADO_FILE ="registroEmpleado.txt";
-	private static final String CLIENTE_FILE ="registroCliente.txt";
-	private static final String PRODUCTO_FILE ="registroProducto.txt";
-	
+
+	private static final String EMPLEADO_FILE = "registroEmpleado.txt";
+	private static final String CLIENTE_FILE = "registroCliente.txt";
+	private static final String PRODUCTO_FILE = "registroProducto.txt";
+	private static final String TRANSACTIONAL_FILE = "transactional-log.txt";
 	private static final long serialVersionUID = 1L;
 	private JTable empleadoTable;
 	private JTable productoTable;
-	private JTable clienteTable; 
+	private JTable clienteTable;
 	DefaultTableModel empleadoTableModel;
 	private JTextField nombreEmpleadoText;
 	private JTextField codigoEmpleadoText;
 	private JTextField direccionEmpleadoText;
 
-	//curiosidades
-	private Integer empleadoSelectIndex = -1;
+	// curiosidades
+	private int empleadoSelectIndex = -1;
 	List<Empleado> empleados = null;
-	
+
 	public HomePage() {
 		super("Pagina de Inicio");
 		setSize(900, 500);
@@ -82,8 +82,7 @@ public class HomePage extends JFrame {
 		JPanel empleadoPanel = new JPanel();
 		empleadoPanel.setLayout(null);
 		empleadoPanel.add(lblEmpleado);
-		
-		
+
 		// PRODUCTO
 		JLabel lblProducto = new JLabel("Producto");
 		lblProducto.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -105,29 +104,30 @@ public class HomePage extends JFrame {
 		clientePanel.setLayout(null);
 		clientePanel.add(lblCliente);
 
-
-		
-		 //termina la carga de tabla
+		// termina la carga de tabla
 		JButton btnAgregarEmpleado = new JButton("Agregar Empleado");
 		btnAgregarEmpleado.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(nombreEmpleadoText.getText().trim().isEmpty() || codigoEmpleadoText.getText().trim().isEmpty() || direccionEmpleadoText.getText().trim().isEmpty()) {
+				if (nombreEmpleadoText.getText().trim().isEmpty() || codigoEmpleadoText.getText().trim().isEmpty()
+						|| direccionEmpleadoText.getText().trim().isEmpty()) {
 					JOptionPane.showMessageDialog(btnAgregarEmpleado, "Los datos introducidos no cumplen el formato");
-				}
-				else {
+				} else {
 					String nombre = nombreEmpleadoText.getText().trim();
 					String codigo = codigoEmpleadoText.getText().trim();
 					String direccion = direccionEmpleadoText.getText().trim();
 					empleados.add(new Empleado(nombre, codigo, direccion));
-					putObjetToModel(empleadoTableModel,new Object[] {nombre, codigo, direccion});
+					putObjetToModel(empleadoTableModel, new Object[] { nombre, codigo, direccion });
 					limpiarFormularioEmpleado();
-					
+
 					try {
 						EventLogging event = new EventLogging();
 						event.setDateRegister(FileRegistry.getNowDateString());
 						event.setEventSource("empleadoSave");
 						event.setPayload(empleados);
 						FileRegistry.saveLog(EMPLEADO_FILE, false, event);
+
+						event.setPayload("Se registro un empleado con codigo: " + codigo);
+						FileRegistry.saveLog(TRANSACTIONAL_FILE, true, event);
 					} catch (IOException e1) {
 						System.out.println("Problema guardando empleado: " + e1.getMessage());
 						JOptionPane.showMessageDialog(btnAgregarEmpleado, "Hubo un problema guardando el empleado");
@@ -137,48 +137,78 @@ public class HomePage extends JFrame {
 		});
 		btnAgregarEmpleado.setBounds(20, 386, 128, 34);
 		empleadoPanel.add(btnAgregarEmpleado);
-		
+
 		JButton btnEliminarempleado = new JButton("EliminarEmpleado");
-		btnEliminarempleado.setBounds(174, 386, 121, 34);
+		btnEliminarempleado.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				empleadoSelectIndex = empleadoTable.getSelectedRow();
+				if (empleadoSelectIndex > -1) {
+					List<Empleado> empleadosAux = new ArrayList<>();
+					for (Empleado empleado : empleados) {
+						empleadosAux.add(empleado);
+					}
+
+					empleados.remove(empleadoSelectIndex);
+					EventLogging event = new EventLogging();
+					event.setDateRegister(FileRegistry.getNowDateString());
+					event.setEventSource("empleadoDelete");
+					event.setPayload(empleados);
+					try {
+						FileRegistry.saveLog(EMPLEADO_FILE, false, event);
+						empleadoTableModel.removeRow(empleadoSelectIndex);
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(btnAgregarEmpleado,
+								"No se pudo eliminar al empleado intentelo mas tarde");
+						empleados = empleadosAux;
+					}
+
+					empleadoSelectIndex = -1;
+
+				} else {
+					JOptionPane.showMessageDialog(btnAgregarEmpleado, "Debes seleccionar una fila a eliminar");
+				}
+			}
+		});
+		btnEliminarempleado.setBounds(174, 386, 130, 34);
 		empleadoPanel.add(btnEliminarempleado);
-		
+
 		JButton btnEditarEmpleado = new JButton("Editar Empleado");
 		btnEditarEmpleado.setBounds(329, 386, 121, 34);
 		empleadoPanel.add(btnEditarEmpleado);
-		
+
 		// AGREGAMOS LOS PANELES AL CARDLAYOUT
 		conceptosPanel.add(empleadoPanel, "empleadoPanel");
 		conceptosPanel.add(productoPanel, "productoPanel");
 		conceptosPanel.add(clientePanel, "clientePanel");
 		cargaTablaEmpleado(empleadoPanel);
-		
+
 		JLabel lblNombreEmpleado = new JLabel("Nombre:");
 		lblNombreEmpleado.setBounds(470, 96, 53, 14);
 		empleadoPanel.add(lblNombreEmpleado);
-		
+
 		JLabel lblCodigoEmpleado = new JLabel("Codigo");
 		lblCodigoEmpleado.setBounds(470, 135, 53, 14);
 		empleadoPanel.add(lblCodigoEmpleado);
-		
+
 		JLabel lblDireccionEmpleado = new JLabel("Direccion");
 		lblDireccionEmpleado.setBounds(470, 174, 80, 14);
 		empleadoPanel.add(lblDireccionEmpleado);
-		
+
 		nombreEmpleadoText = new JTextField();
 		nombreEmpleadoText.setBounds(556, 84, 105, 26);
 		empleadoPanel.add(nombreEmpleadoText);
 		nombreEmpleadoText.setColumns(10);
-		
+
 		codigoEmpleadoText = new JTextField();
 		codigoEmpleadoText.setBounds(556, 129, 105, 26);
 		empleadoPanel.add(codigoEmpleadoText);
 		codigoEmpleadoText.setColumns(10);
-		
+
 		direccionEmpleadoText = new JTextField();
 		direccionEmpleadoText.setBounds(556, 168, 105, 26);
 		empleadoPanel.add(direccionEmpleadoText);
 		direccionEmpleadoText.setColumns(10);
-		
+
 		JButton btnLimpiar = new JButton("Limpiar");
 		btnLimpiar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -187,7 +217,7 @@ public class HomePage extends JFrame {
 		});
 		btnLimpiar.setBounds(483, 386, 105, 34);
 		empleadoPanel.add(btnLimpiar);
-		
+
 		// CREAMOS LOS BOTONES DEL MENU Y LES DAMOS ACTIONS
 		JButton empleadoButton = new JButton("Empleado");
 		empleadoButton.setBounds(20, 49, 123, 63);
@@ -203,99 +233,95 @@ public class HomePage extends JFrame {
 		clienteButton.setBounds(20, 283, 123, 63);
 		clienteButton.setFont(new Font("Tahoma", Font.BOLD, 18));
 		clienteButton.setBackground(Color.GRAY);
-		
-		empleadoButton.addActionListener(new ActionListener() { 
+
+		empleadoButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				cardLayoutController.show(conceptosPanel, "empleadoPanel"); 
+				cardLayoutController.show(conceptosPanel, "empleadoPanel");
 				empleadoButton.setBackground(Color.GREEN);
 				productoButton.setBackground(Color.GRAY);
 				clienteButton.setBackground(Color.GRAY);
 			}
 		});
-		
-		productoButton.addActionListener(new ActionListener() { 
+
+		productoButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				cardLayoutController.show(conceptosPanel, "productoPanel");  
+				cardLayoutController.show(conceptosPanel, "productoPanel");
 				empleadoButton.setBackground(Color.GRAY);
 				productoButton.setBackground(Color.GREEN);
 				clienteButton.setBackground(Color.GRAY);
 			}
 		});
-		
-		clienteButton.addActionListener(new ActionListener() { 
+
+		clienteButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				cardLayoutController.show(conceptosPanel, "clientePanel"); 
+				cardLayoutController.show(conceptosPanel, "clientePanel");
 				empleadoButton.setBackground(Color.GRAY);
 				productoButton.setBackground(Color.GRAY);
 				clienteButton.setBackground(Color.GREEN);
 			}
 		});
-		
+
 		menuPanel.add(empleadoButton);
 		menuPanel.add(productoButton);
 		menuPanel.add(clienteButton);
 
 	}
-	
+
 	public void cargaTablaEmpleado(JPanel panelEmpleado) {
 		empleadoTable = new JTable();
 		empleadoTable.setBorder(new LineBorder(new Color(128, 128, 0), 2));
 		empleadoTable.setEnabled(true);
-		empleadoTableModel = new DefaultTableModel(
-				cargarDataEmpleados(),
-				new String[] {
-					"Nombre", "Codigo", "Direccion"
-				}
-			);
-		empleadoTable.setModel(empleadoTableModel);	 
+
+		Object[][] data;
+		try {
+			data = cargarDataEmpleados();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "Hubo un problema guardando el empleado");
+			data = new Object[][] {};
+		}
+
+		empleadoTableModel = new DefaultTableModel(data, new String[] { "Nombre", "Codigo", "Direccion" });
+		empleadoTable.setModel(empleadoTableModel);
 		empleadoTable.setBounds(20, 36, 432, 310);
-		cargarDataEmpleados();
-		panelEmpleado.add(empleadoTable);		
+
+		panelEmpleado.add(empleadoTable);
 	}
+
 	@SuppressWarnings("unchecked")
-	public Object[][] cargarDataEmpleados() {
-		EventLogging event = (EventLogging)FileRegistry.readFile(EMPLEADO_FILE);
+	public Object[][] cargarDataEmpleados() throws IOException {
+		EventLogging event = (EventLogging) FileRegistry.readFile(EMPLEADO_FILE);
 //		JOptionPane.showMessageDialog(null, "se recupero el evento" + ((ArrayList<Empleado>)ss.getPayload()).size());
-		
+		EventLogging eventTransactional = new EventLogging(FileRegistry.getNowDateString(), "getEmpleados",
+				"Se recupero empleados");
+		FileRegistry.saveLog(TRANSACTIONAL_FILE, true, eventTransactional);
 		empleados = new ArrayList<>();
-		if(event == null) {
-			return new Object[][] {
-			};
+		if (event == null) {
+			return new Object[][] {};
 		}
-		empleados =  (List<Empleado>) event.getPayload();
-		
-		if(empleados == null || empleados.isEmpty()) {
-			return new Object[][] {
-			};
+		empleados = (List<Empleado>) event.getPayload();
+
+		if (empleados == null || empleados.isEmpty()) {
+			return new Object[][] {};
 		}
-//		empleados.add(new Empleado("daniel-1", "cod1", "direccion1"));
-//		empleados.add(new Empleado("daniel-2", "cod2", "direccion2"));
-//		empleados.add(new Empleado("daniel-3", "cod3", "direccion3"));
-//		empleados.add(new Empleado("daniel-4", "cod4", "direccion4"));
-//		empleados.add(new Empleado("daniel-5", "cod5", "direccion5"));
-//		empleados.add(new Empleado("daniel-6", "cod6", "direccion6"));
-//		empleados.add(new Empleado("daniel-7", "cod7", "direccion7"));
-//		empleados.add(new Empleado("daniel-8", "cod8", "direccion8"));
-		
-		
-		Object[][] data = new Object [empleados.size()][3];
-		
+
+		Object[][] data = new Object[empleados.size()][3];
+
 		for (int i = 0; i < empleados.size(); i++) {
-			data[i][0]=empleados.get(i).getNombre();
-			data[i][1]=empleados.get(i).getCodigo();
-			data[i][2]=empleados.get(i).getDireccion();
-			
-		} 
+			data[i][0] = empleados.get(i).getNombre();
+			data[i][1] = empleados.get(i).getCodigo();
+			data[i][2] = empleados.get(i).getDireccion();
+
+		}
 		return data;
 	}
-	
+
 	private void putObjetToModel(DefaultTableModel tableModel, Object[] object) {
 		tableModel.addRow(object);
 	}
-	
+
 	private void limpiarFormularioEmpleado() {
 		nombreEmpleadoText.setText("");
 		codigoEmpleadoText.setText("");
