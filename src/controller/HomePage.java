@@ -3,23 +3,28 @@ package controller;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable; 
+import javax.swing.JTable;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+
+import controller.model.entidad.Empleado; 
 
 public class HomePage extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTable empleadoTable;
 	private JTable productoTable;
-	private JTable clienteTable;
+	private JTable clienteTable; 
+	DefaultTableModel empleadoTableModel;
 
 	public HomePage() {
 		super("Pagina de Inicio");
@@ -60,23 +65,8 @@ public class HomePage extends JFrame {
 		JPanel empleadoPanel = new JPanel();
 		empleadoPanel.setLayout(null);
 		empleadoPanel.add(lblEmpleado);
-		//CARGA TABLA EMPLEADO
-		String[] columns = new String[] {
-	            "Nombre", "Codigo", "Direccion"
-	        };
-		Object[][] data = new Object[][] {
-            {  "John",  "001", "Direccion1" },
-            {  "Rambo", "002", "Direccion2" },
-            {  "Zorro", "003", "Direccion3" },
-        };
-        
-        JTable table = new JTable(data, columns);
-        table.setBounds(30,40,200,300);
-        JScrollPane scrollPane = new JScrollPane(table);
-        empleadoPanel.add(scrollPane);
-		cargaTablaEmpleado(empleadoPanel);
-		//FIN DE CARGA TABLA EMPLEADO
-
+		
+		
 		// PRODUCTO
 		JLabel lblProducto = new JLabel("Producto");
 		lblProducto.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -98,11 +88,27 @@ public class HomePage extends JFrame {
 		clientePanel.setLayout(null);
 		clientePanel.add(lblCliente);
 
+
+		
+		 //termina la carga de tabla
+		JButton btnAgregarEmpleado = new JButton("Agregar Empleado");
+		btnAgregarEmpleado.setBounds(510, 52, 121, 34);
+		empleadoPanel.add(btnAgregarEmpleado);
+		
+		JButton btnEliminarempleado = new JButton("EliminarEmpleado");
+		btnEliminarempleado.setBounds(510, 97, 121, 34);
+		empleadoPanel.add(btnEliminarempleado);
+		
+		JButton btnEditarEmpleado = new JButton("Editar Empleado");
+		btnEditarEmpleado.setBounds(510, 148, 121, 34);
+		empleadoPanel.add(btnEditarEmpleado);
+		
 		// AGREGAMOS LOS PANELES AL CARDLAYOUT
 		conceptosPanel.add(empleadoPanel, "empleadoPanel");
 		conceptosPanel.add(productoPanel, "productoPanel");
 		conceptosPanel.add(clientePanel, "clientePanel");
-
+		cargaTablaEmpleado(empleadoPanel);
+		
 		// CREAMOS LOS BOTONES DEL MENU Y LES DAMOS ACTIONS
 		JButton empleadoButton = new JButton("Empleado");
 		empleadoButton.setBounds(20, 49, 123, 63);
@@ -156,29 +162,47 @@ public class HomePage extends JFrame {
 	}
 	
 	public void cargaTablaEmpleado(JPanel panelEmpleado) {
-//		String[] columns = new String[] {
-//	            "Nombre", "Codigo", "Direccion"
-//	        };
-//		Object[][] data = new Object[][] {
-//            {  "John",  "001", "Direccion1" },
-//            {  "Rambo", "002", "Direccion2" },
-//            {  "Zorro", "003", "Direccion3" },
-//        };
-//        
-//        JTable table = new JTable(data, columns);
-//        table.setBounds(30,40,200,300);
-//        JScrollPane scrollPane = new JScrollPane(table);
-//        panelEmpleado.add(scrollPane);
-		
+		empleadoTable = new JTable();
+		empleadoTable.setBorder(new LineBorder(new Color(128, 128, 0), 2));
+		empleadoTable.setEnabled(true);
+		empleadoTableModel = new DefaultTableModel(
+				cargarDataEmpleados(),
+				new String[] {
+					"Nombre", "Codigo", "Direccion"
+				}
+			);
+		empleadoTable.setModel(empleadoTableModel);	 
+		empleadoTable.setBounds(20, 36, 432, 310);
+		cargarDataEmpleados();
+		panelEmpleado.add(empleadoTable);		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+	public Object[][] cargarDataEmpleados() {
+		System.out.println("hola llege punto 1");
+		List<Empleado> empleados = new ArrayList<>();
+		empleados.add(new Empleado("daniel-1", "cod1", "direccion1"));
+		empleados.add(new Empleado("daniel-2", "cod2", "direccion2"));
+		empleados.add(new Empleado("daniel-3", "cod3", "direccion3"));
+		empleados.add(new Empleado("daniel-4", "cod4", "direccion4"));
+		empleados.add(new Empleado("daniel-5", "cod5", "direccion5"));
+		empleados.add(new Empleado("daniel-6", "cod6", "direccion6"));
+		empleados.add(new Empleado("daniel-7", "cod7", "direccion7"));
+		empleados.add(new Empleado("daniel-8", "cod8", "direccion8"));
+		
+		if(empleados == null || empleados.isEmpty()) {
+			return new Object[][] {
+			};
+		}
+		Object[][] data = new Object [empleados.size()][3];
+		
+		for (int i = 0; i < empleados.size(); i++) {
+			data[i][0]=empleados.get(i).getNombre();
+			data[i][1]=empleados.get(i).getCodigo();
+			data[i][2]=empleados.get(i).getDireccion();
+			
+		}
+	System.out.println("hola llege punto 2");
+		return data;
+	}
 	
 	
 }
